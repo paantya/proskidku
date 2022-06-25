@@ -1,0 +1,438 @@
+import json
+import time
+import random
+import telebot
+import requests
+
+from bs4 import BeautifulSoup
+from tqdm.auto import tqdm
+from datetime import datetime
+
+from config import TOKEN
+from config import NO_PHOTO
+from config import msg_info, msg_info_log
+from config import CHAT_ID, CHAT_ID_LOG, CHAT_TD_LOG
+
+bot = telebot.TeleBot(TOKEN, parse_mode='MARKDOWN') # You can set parse_mode by default. HTML or MARKDOWN
+
+def load(file):
+    with open(file, 'r') as f:
+        data = json.load(f)
+    return data
+
+
+def save(data, file):
+    with open(file, 'w') as f:
+        json.dump(data, f, ensure_ascii=False, indent=1)
+
+
+@bot.message_handler(commands=['start', 'help'])
+def send_welcome(message):
+    bot.reply_to(message, "Howdy, how are you doing?")
+    
+@bot.message_handler(func=lambda m: True)
+def echo_all(message):
+    bot.reply_to(message, message.text)
+    print(message)
+
+
+
+# bot.infinity_polling()
+def send_message(data, time_end, chat_id,time_limit=3.1):
+    img = data['img']
+    url = data['url']
+    name = f"[{data['name']}]({url})"
+    price = f"Цена: *{data['price_new'].replace(' ₽','₽')}* (Скидка {data['pp']})"
+    price_link = f"{data['price_new'].replace(' ₽','₽')} (Скидка {data['pp']})"
+    сharacteristics = '\n'.join([k+': #'+v.replace(' ','\_').replace('-','\_').replace('`','').replace("'",'').replace("!",'').replace(",",'').replace(".",'') for k,v in data['сharacteristics'].items()])
+
+    if img != NO_PHOTO:
+        url_pic = f"[ ]({img})"
+        disable_web_page_preview = False
+    else:
+        url_pic = ''
+        disable_web_page_preview = True
+    text = f'{url_pic}{name}\n{price}\n{сharacteristics}'
+    
+    markup = telebot.types.InlineKeyboardMarkup()
+    markup.add(telebot.types.InlineKeyboardButton(price_link, url=url))
+    
+    time_diff = time.time() - time_end
+    print(f"\rtime_diff: {time_diff} {time_limit}", end = '')
+    time.sleep(time_limit)
+    
+    try:
+        send_message_ = bot.send_message(chat_id,
+                                    text, 
+                                    reply_markup=markup,
+#                                     entities=entities,
+                                    disable_web_page_preview=disable_web_page_preview,
+                                    disable_notification=True
+                                   )
+        time_end = time.time()
+    except Exception as e:
+        text = f"Exception send_message: {e}"
+        print(text)
+        time.sleep(5)
+        bot.send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
+        time_end = time.time()
+        return None, time_end
+    
+    message_json_tmp = send_message_.json
+    message_json = {
+        'message_id': message_json_tmp['message_id'],
+        'chat': {
+            'id': message_json_tmp['chat']['id'],
+        },
+        "date": message_json_tmp['date'],
+        "text": message_json_tmp['text'],    
+    }
+    
+    return message_json, time_end
+
+
+
+# # bot.infinity_polling()
+# def edit_message_text(data, message_json, chat_id = -1001686304047,time_limit=3.1 ):
+    
+# #     bot.get_me().de_json()
+#     img = data['img']
+#     url = data['url']
+#     name = f"[{data['name']}]({url})"
+#     price = f"*{data['price_new'].replace(' ₽','₽')}* (Старая цена: {data['price_old'].replace(' ₽','₽')}, {data['price_economy'].replace(' ₽','₽')}, {data['pp']})"
+#     price_link = f"{data['price_new'].replace(' ₽','₽')} (Старая цена: {data['price_old'].replace(' ₽','₽')}, {data['price_economy'].replace(' ₽','₽')}, {data['pp']})"
+#     сharacteristics = '\n'.join([k+': #'+v.replace(' ','\_') for k,v in data['сharacteristics'].items()])
+
+#     if img != 'https://www.proskidku.ru/local/templates/.default/components/bitrix/catalog.element/proskidku/images/no_photo.png':
+#         url_pic = f"[ ]({img})"
+#         disable_web_page_preview = False
+#     else:
+#         url_pic = ''
+#         disable_web_page_preview = True
+#     text = f'{url_pic}{name}\n{price}\n{сharacteristics}'
+    
+#     markup = telebot.types.InlineKeyboardMarkup()
+#     markup.add(telebot.types.InlineKeyboardButton(price_link, url=url))
+    
+#     time_diff = time.time() - time_end
+#     time.sleep(0 if time_diff > time_limit else time_diff)
+    
+#     send_message_ = bot.edit_message_text(text,
+#                                          chat_id=message_json['chat']['id'],
+#                                          message_id=message_json['message_id'],
+#                                          reply_markup=markup,
+# #                                          entities=entities,
+#                                          disable_web_page_preview=disable_web_page_preview,
+#                                          disable_notification=True,
+#                                         )
+#     return send_message_.json
+
+
+# bot.infinity_polling()
+
+def upd_info(msg_json, n):
+    text = '''Скидок доступно в канале и на сайте:'''
+
+    markup = telebot.types.InlineKeyboardMarkup()
+    markup.add(telebot.types.InlineKeyboardButton(n, url=f'https://t.me/ProSkidkuru'))  
+    
+    time.sleep(1)
+    remsg = bot.edit_message_text(
+        text=text,
+        chat_id= msg_json['chat']['id'],
+        message_id=msg_json['message_id'],
+        reply_markup= markup,
+    )
+
+def upd_info_log(msg_json, text, d, o, n):
+
+    markup = telebot.types.InlineKeyboardMarkup()
+    markup.add(telebot.types.InlineKeyboardButton(f"{d}, {o}, {n}", url=f'https://t.me/ProSkidkuru'))  
+
+    remsg = bot.edit_message_text(
+        text=text,
+        chat_id= msg_json['chat']['id'],
+        message_id=msg_json['message_id'],
+        reply_markup= markup,
+    )
+
+
+def delete_message(message_json, verbose=True):
+    try:
+        time.sleep(4)
+        now = datetime.now()
+        dmsg = datetime.fromtimestamp(message_json['date'])
+        if (now - dmsg).days < 2:
+            flag_delete_message = bot.delete_message(
+                chat_id=message_json['chat']['id'],
+                message_id = message_json['message_id'],
+            )
+            return flag_delete_message
+        else:
+            remsg = bot.edit_message_text(
+                text='#продано',
+                chat_id= message_json['chat']['id'],
+                message_id=message_json['message_id'],
+            )
+            return remsg.json
+    except Exception as e:
+        text = f"Exception delete_message: {e}, message_json:{message_json}"
+        print(text)
+        time.sleep(5)
+        bot.send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
+
+        return False
+
+def get_soup(url, **kwargs):
+    try:
+        response = requests.get(url, **kwargs)
+    except Exception as e:
+        text = f"Exception get_soup: {e}"
+        print(text)
+        time.sleep(5)
+        bot.send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
+        return None
+    soup = None
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, features='html.parser')
+    return soup
+
+
+def crawl_products(categoric, urls = None):
+    if urls is None:
+        urls = {}
+        
+    fmt = f'https://www.proskidku.ru/d-catalog/{categoric}/'
+#     print(f'categoric: {categoric}', end=', ')
+    
+    page_url = fmt
+    soup = get_soup(page_url, timeout=30)
+    # print(soup)
+    if soup is None:
+        print("break")
+        return None, 0
+    else:
+        # soup.select_one('.pagination-container').ul.select('.page-link')[-1].text
+        if soup.select_one('.pagination-container') is not None:
+            pages_count = int(soup.select_one('.pagination-container').ul.select('.page-link')[-1].text)
+        else:
+            pages_count = 1
+#         print(f"pages_count = {pages_count}")
+
+        fmt = 'https://www.proskidku.ru/d-catalog/{categoric}/?PAGEN_1={page}'
+
+        for page_n in tqdm(range(pages_count, 0, -1),f"categoric: {categoric}", leave=False):
+#             print('page: {}'.format(page_n), fmt.format(page=page_n, categoric=categoric))
+
+            page_url = fmt.format(page=page_n, categoric=categoric)
+            soup = get_soup(page_url)
+            if soup is None:
+                print("break")
+                return None, pages_count
+        #     print(soup)
+            for tag, pp in zip(soup.select('.product-item-title'), soup.select('.product-item-label-ring')):
+
+                pp_log = pp.text.strip()
+                title = tag.a.attrs['title']
+                href = tag.a.attrs['href']
+                url = 'https://www.proskidku.ru{}'.format(href)
+                urls[url] = title, pp_log, categoric
+
+        return urls, pages_count
+
+
+def parse_products(urls):
+    values = urls.values()
+    keys = urls.keys()
+    
+    urls = keys
+    names = [i[0] for i in values]
+    pps = [i[1] for i in values]
+    categorics = [i[2] for i in values]
+    
+    data = {}
+    for url, name, pp, categoric in tqdm(zip(urls,names, pps, categorics), total=min(len(urls),len(names),len(pps),len(categorics)) , leave=False):
+        print('\rproduct: {}'.format(url), end='')
+
+        soup = get_soup(url)
+        if soup is None:
+            print('break')
+            continue
+
+    #     print(soup.select('.product-item-detail-tab-content .product-item-detail-properties'))
+        key_loc = []
+        value_loc = []
+        select = soup.select('.product-item-detail-tab-content .product-item-detail-properties')[0]
+    #     print(select)
+        key_loc = [i.text.strip() for i in select.select('dt')]
+        value_loc = [i.text.strip() for i in select.select('dd')]
+        сharacteristics = {}
+        for k,v in zip(key_loc, value_loc):
+            сharacteristics[k] = v
+        сharacteristics["categoric"] = categoric
+        href = soup.select_one('.product-item-detail-slider-image').img['src']
+        try:
+            price_old = soup.select_one(".product-item-detail-price-old").text.strip()
+            price_new = soup.select_one(".product-item-detail-price-current").text.strip()
+            price_economy = soup.select_one(".item_economy_price").text.strip()
+
+            item = {
+                'name': name,
+                'url': url,
+                'categoric': categoric,
+                'сharacteristics': сharacteristics,
+                'img': 'https://www.proskidku.ru{}'.format(href),
+                'price_old': price_old,
+                'price_new': price_new,
+                'price_economy': price_economy,
+                'pp': pp,
+            }
+            data[url] = item
+        
+        except Exception as e:
+            print(f"Exception: {e}")
+    print('\r', end='')
+    return data
+
+
+def check_change(old_urls, new_urls):
+    delete = set(old_urls.keys()).difference(set(new_urls.keys()))
+    new = set(new_urls.keys()).difference(set(old_urls.keys()))
+    no_change = set(new_urls.keys()) & set(old_urls.keys())
+    
+    return delete, no_change, new
+
+
+def update(urls):
+    old_urls = urls
+
+    reload_url = True
+    while reload_url:
+        reload_url = False
+        urls = {}
+
+        length = {}
+        for categoric in ['zavisony', 'diskont', 'srochnye-sroki']:
+            len_urls = len(urls)
+            urls, pages_count = crawl_products(categoric=categoric, urls=urls)
+            if urls is None:
+                reload_url = True
+            diff_urls = len(urls) - len_urls
+            length[categoric] = {
+                'pages': pages_count,
+                'pos': diff_urls,
+            }
+
+    total = []
+    for k,v in length.items():
+        total.append(f"{k}:(pg {v['pages']}, ps {v['pos']})")
+    # zavisony, diskont, srochnye-sroki
+    
+    delete, no_change, new = check_change(old_urls, urls)
+    text = f"⏳ `[{datetime.now()}]` upd ({len(old_urls)} - > {len(urls)}, diff {len(urls) - len(old_urls)})(del: {len(delete)}, old: {len(no_change)}, new: {len(new)}): {', '.join(total)}."
+    print(text)
+    time.sleep(4)
+    upd_info_log(msg_info_log, text, len(delete), len(no_change), len(new))
+    if len(delete)+len(new)>0:
+        try:
+            time.sleep(4)
+            text = f"{f'➖: {len(delete)}'if len(delete) >0 else ''}{', 'if len(delete)>0 and len(new)>0 else ''}{f'➕: {len(new)}.' if len(new)>0 else '.'}"
+            bot.send_message(chat_id=CHAT_TD_LOG, text=text, disable_notification=True)
+        except:
+            pass
+    return urls, delete, no_change, new
+
+def one_step(urls, datas, time_end = 0, batch_size=16):
+    urls_new, delete, no_change, new = update(urls)
+    change = True if len(urls) != len(urls_new) else False
+
+    new_list = list(new)
+
+    if len(new_list) > 0:
+        print(f"data_new: len {len(new_list)}", end='')
+    batch_range = len(new) // batch_size + int(len(new) % batch_size > 0)
+    for i in tqdm(range(batch_range), 'batch up' ,leave=False):
+        url_new_batch = new_list[i*batch_size:(i+1)*batch_size]
+        url_new = {k:urls_new[k] for k in url_new_batch}
+        data_new = parse_products(url_new)
+        url_new = {k:url_new[k] for k in data_new.keys()}
+
+        for k,data in tqdm(data_new.items(), 'send new data' ,leave=False):
+            send_message_json, time_end = send_message(data, time_end, chat_id=CHAT_ID)
+            if send_message_json is not None:
+                data_new[k]['tg'] = send_message_json
+
+                datas[k] = data_new[k]
+                urls[k] = urls_new[k]
+                save(datas, file='datas.json')
+                save(urls, file='urls.json')
+            else:
+                print(f"MSG NO SEND: key {k}\nJSON:{data['tg']}")
+                
+    if change:
+        upd_info(msg_info, len(urls_new))
+
+    if len(delete) > 0:
+        print(f"data_delete: batch len {len(delete)}", end='')
+    
+    delete_list_false = []
+    delete_list_true = []
+
+    for key in tqdm(delete, 'dalate',leave=False):
+        data = datas[key]
+        flag = delete_message(data['tg'], verbose=False)
+        if flag != False:
+            datas.pop(key, None)
+            urls.pop(key, None)
+            save(datas, file='datas.json')
+            save(urls, file='urls.json')
+
+        else:
+            now = datetime.now()
+            dt_object = datetime.fromtimestamp(data['tg']['date'])
+            #if (now - dt_object).days >= 1:
+            
+            delete_list_false.append(now - dt_object)
+            #print(str(now - dt_object))
+            #print(f"MSG NO DELETE: key {key} in datas ({key in datas.keys()})\nJSON:{data['tg']}")
+    if len(delete_list_false):
+        text = f"❌ `delete_list_false` len({len(delete_list_false)}), min: {min(delete_list_false) if len(delete_list_false) > 0 else '-'}, max: {max(delete_list_false) if len(delete_list_false) > 0 else '-'}"
+        print(text)
+        time.sleep(4)
+        try:
+            bot.send_message(chat_id=CHAT_TD_LOG, text=text, disable_notification=True)
+        except:
+            pass
+    return urls, datas, time_end
+
+
+# def main_first():
+#     datas = {}
+#     urls = {}
+#     time_end = time.time()
+    
+#     urls, datas, time_end = one_step(urls, datas, time_end)
+#     time.sleep(5)
+    
+#     return 0
+# main_first()
+
+
+def main():
+    datas = load(file='datas.json')
+    urls = load(file='urls.json')
+    time_end = time.time()
+    
+    while True:
+        urls, datas, time_end = one_step(urls, datas, time_end, batch_size=12)
+        time.sleep(3*60 + random.randint(1, 7*60))
+    
+    return 0
+
+if __name__ == '__main__':
+    main()
+
+
+
+
+
