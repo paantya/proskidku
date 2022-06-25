@@ -1,187 +1,18 @@
-import json
+
 import time
 import random
-import telebot
 import requests
 
 from bs4 import BeautifulSoup
 from tqdm.auto import tqdm
 from datetime import datetime
 
-from config_prod import TOKEN
-from config_prod import NO_PHOTO
+from utils import load, save
+
 from config_prod import msg_info, msg_info_log
 from config_prod import CHAT_ID, CHAT_ID_LOG, CHAT_TD_LOG
 
-bot = telebot.TeleBot(TOKEN, parse_mode='MARKDOWN') # You can set parse_mode by default. HTML or MARKDOWN
-
-def load(file):
-    with open(file, 'r') as f:
-        data = json.load(f)
-    return data
-
-
-def save(data, file):
-    with open(file, 'w') as f:
-        json.dump(data, f, ensure_ascii=False, indent=1)
-
-
-@bot.message_handler(commands=['start', 'help'])
-def send_welcome(message):
-    bot.reply_to(message, "Howdy, how are you doing?")
-    
-@bot.message_handler(func=lambda m: True)
-def echo_all(message):
-    bot.reply_to(message, message.text)
-    print(message)
-
-
-
-# bot.infinity_polling()
-def send_message(data, time_end, chat_id,time_limit=3.1):
-    img = data['img']
-    url = data['url']
-    name = f"[{data['name']}]({url})"
-    price = f"Цена: *{data['price_new'].replace(' ₽','₽')}* (Скидка {data['pp']})"
-    price_link = f"{data['price_new'].replace(' ₽','₽')} (Скидка {data['pp']})"
-    сharacteristics = '\n'.join([k+': #'+v.replace(' ','\_').replace('-','\_').replace('`','').replace("'",'').replace("!",'').replace(",",'').replace(".",'') for k,v in data['сharacteristics'].items()])
-
-    if img != NO_PHOTO:
-        url_pic = f"[ ]({img})"
-        disable_web_page_preview = False
-    else:
-        url_pic = ''
-        disable_web_page_preview = True
-    text = f'{url_pic}{name}\n{price}\n{сharacteristics}'
-    
-    markup = telebot.types.InlineKeyboardMarkup()
-    markup.add(telebot.types.InlineKeyboardButton(price_link, url=url))
-    
-    time_diff = time.time() - time_end
-    print(f"\rtime_diff: {time_diff} {time_limit}", end = '')
-    time.sleep(time_limit)
-    
-    try:
-        send_message_ = bot.send_message(chat_id,
-                                    text, 
-                                    reply_markup=markup,
-#                                     entities=entities,
-                                    disable_web_page_preview=disable_web_page_preview,
-                                    disable_notification=True
-                                   )
-        time_end = time.time()
-    except Exception as e:
-        text = f"Exception send_message: {e}"
-        print(text)
-        time.sleep(5)
-        bot.send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
-        time_end = time.time()
-        return None, time_end
-    
-    message_json_tmp = send_message_.json
-    message_json = {
-        'message_id': message_json_tmp['message_id'],
-        'chat': {
-            'id': message_json_tmp['chat']['id'],
-        },
-        "date": message_json_tmp['date'],
-        "text": message_json_tmp['text'],    
-    }
-    
-    return message_json, time_end
-
-
-
-# # bot.infinity_polling()
-# def edit_message_text(data, message_json, chat_id = -1001686304047,time_limit=3.1 ):
-    
-# #     bot.get_me().de_json()
-#     img = data['img']
-#     url = data['url']
-#     name = f"[{data['name']}]({url})"
-#     price = f"*{data['price_new'].replace(' ₽','₽')}* (Старая цена: {data['price_old'].replace(' ₽','₽')}, {data['price_economy'].replace(' ₽','₽')}, {data['pp']})"
-#     price_link = f"{data['price_new'].replace(' ₽','₽')} (Старая цена: {data['price_old'].replace(' ₽','₽')}, {data['price_economy'].replace(' ₽','₽')}, {data['pp']})"
-#     сharacteristics = '\n'.join([k+': #'+v.replace(' ','\_') for k,v in data['сharacteristics'].items()])
-
-#     if img != 'https://www.proskidku.ru/local/templates/.default/components/bitrix/catalog.element/proskidku/images/no_photo.png':
-#         url_pic = f"[ ]({img})"
-#         disable_web_page_preview = False
-#     else:
-#         url_pic = ''
-#         disable_web_page_preview = True
-#     text = f'{url_pic}{name}\n{price}\n{сharacteristics}'
-    
-#     markup = telebot.types.InlineKeyboardMarkup()
-#     markup.add(telebot.types.InlineKeyboardButton(price_link, url=url))
-    
-#     time_diff = time.time() - time_end
-#     time.sleep(0 if time_diff > time_limit else time_diff)
-    
-#     send_message_ = bot.edit_message_text(text,
-#                                          chat_id=message_json['chat']['id'],
-#                                          message_id=message_json['message_id'],
-#                                          reply_markup=markup,
-# #                                          entities=entities,
-#                                          disable_web_page_preview=disable_web_page_preview,
-#                                          disable_notification=True,
-#                                         )
-#     return send_message_.json
-
-
-# bot.infinity_polling()
-
-def upd_info(msg_json, n):
-    text = '''Скидок доступно в канале и на сайте:'''
-
-    markup = telebot.types.InlineKeyboardMarkup()
-    markup.add(telebot.types.InlineKeyboardButton(n, url=f'https://t.me/ProSkidkuru'))  
-    
-    time.sleep(1)
-    remsg = bot.edit_message_text(
-        text=text,
-        chat_id= msg_json['chat']['id'],
-        message_id=msg_json['message_id'],
-        reply_markup= markup,
-    )
-
-def upd_info_log(msg_json, text, d, o, n):
-
-    markup = telebot.types.InlineKeyboardMarkup()
-    markup.add(telebot.types.InlineKeyboardButton(f"{d}, {o}, {n}", url=f'https://t.me/ProSkidkuru'))  
-
-    remsg = bot.edit_message_text(
-        text=text,
-        chat_id= msg_json['chat']['id'],
-        message_id=msg_json['message_id'],
-        reply_markup= markup,
-    )
-
-
-def delete_message(message_json, verbose=True):
-    try:
-        time.sleep(4)
-        now = datetime.now()
-        dmsg = datetime.fromtimestamp(message_json['date'])
-        if (now - dmsg).days < 2:
-            flag_delete_message = bot.delete_message(
-                chat_id=message_json['chat']['id'],
-                message_id = message_json['message_id'],
-            )
-            return flag_delete_message
-        else:
-            remsg = bot.edit_message_text(
-                text='#продано',
-                chat_id= message_json['chat']['id'],
-                message_id=message_json['message_id'],
-            )
-            return remsg.json
-    except Exception as e:
-        text = f"Exception delete_message: {e}, message_json:{message_json}"
-        print(text)
-        time.sleep(5)
-        bot.send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
-
-        return False
+from telegram import bot, send_message, upd_info, upd_info_log, delete_message
 
 def get_soup(url, **kwargs):
     try:
@@ -429,10 +260,6 @@ def main():
     
     return 0
 
+
 if __name__ == '__main__':
     main()
-
-
-
-
-
