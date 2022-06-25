@@ -8,10 +8,10 @@ from bs4 import BeautifulSoup
 from tqdm.auto import tqdm
 from datetime import datetime
 
-from config import TOKEN
-from config import NO_PHOTO
-from config import msg_info, msg_info_log
-from config import CHAT_ID, CHAT_ID_LOG, CHAT_TD_LOG
+from config_prod import TOKEN
+from config_prod import NO_PHOTO
+from config_prod import msg_info, msg_info_log
+from config_prod import CHAT_ID, CHAT_ID_LOG, CHAT_TD_LOG
 
 bot = telebot.TeleBot(TOKEN, parse_mode='MARKDOWN') # You can set parse_mode by default. HTML or MARKDOWN
 
