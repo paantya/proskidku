@@ -63,7 +63,7 @@ def send_message(data, time_end, chat_id, time_limit=3.1):
         text = f"Exception send_message: {e}"
         print(text)
         time.sleep(5)
-        bot.send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
+        bot_send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
         time_end = time.time()
         return None, time_end
 
@@ -199,6 +199,6 @@ def delete_message(message_json, verbose=True):
         text = f"Exception delete_message: {e}, message_json:{message_json}"
         print(text)
         time.sleep(5)
-        bot.send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
+        bot_send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
 
         return False

@@ -13,7 +13,7 @@ from utils import load, save
 from config_prod import msg_info, msg_info_log
 from config_prod import CHAT_ID, CHAT_ID_LOG, CHAT_TD_LOG
 
-from telegram import bot, send_message, upd_info, upd_info_log, delete_message
+from telegram import bot, send_message, upd_info, upd_info_log, delete_message, bot_send_message
 
 
 def get_soup(url, **kwargs):
@@ -23,7 +23,7 @@ def get_soup(url, **kwargs):
         text = f"Exception get_soup: {e}"
         print(text)
         time.sleep(5)
-        bot.send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
+        bot_send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
         return None
     soup = None
     if response.status_code == 200:
@@ -170,7 +170,7 @@ def update(urls):
         try:
             time.sleep(4)
             text = f"{f'➖: {len(delete)}'if len(delete) >0 else ''}{', 'if len(delete)>0 and len(new)>0 else ''}{f'➕: {len(new)}.' if len(new)>0 else '.'}"
-            bot.send_message(chat_id=CHAT_TD_LOG, text=text, disable_notification=True)
+            bot_send_message(chat_id=CHAT_TD_LOG, text=text, disable_notification=True)
         except:
             pass
     return urls, delete, no_change, new
@@ -233,7 +233,7 @@ def one_step(urls, datas, time_end = 0, batch_size=16):
         print(text)
         time.sleep(4)
         try:
-            bot.send_message(chat_id=CHAT_TD_LOG, text=text, disable_notification=True)
+            bot_send_message(chat_id=CHAT_TD_LOG, text=text, disable_notification=True)
         except:
             pass
     return urls, datas, time_end
