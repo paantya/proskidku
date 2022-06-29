@@ -175,7 +175,7 @@ def update(urls):
             pass
     return urls, delete, no_change, new
 
-def one_step(urls, datas, time_end = 0, batch_size=16):
+def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
     urls_new, delete, no_change, new = update(urls)
     change = True if len(urls) != len(urls_new) else False
 
@@ -236,7 +236,7 @@ def one_step(urls, datas, time_end = 0, batch_size=16):
             bot_send_message(chat_id=CHAT_TD_LOG, text=text, disable_notification=True)
         except:
             pass
-    return urls, datas, time_end
+    return urls, datas, log_upd, time_end
 
 
 # def main_first():
@@ -254,10 +254,11 @@ def one_step(urls, datas, time_end = 0, batch_size=16):
 def main():
     datas = load(file='datas.json')
     urls = load(file='urls.json')
+    log_upd = load(file='log_upd.json')
     time_end = time.time()
     
     while True:
-        urls, datas, time_end = one_step(urls, datas, time_end, batch_size=12)
+        urls, datas, log_upd, time_end = one_step(urls, datas, log_upd, time_end, batch_size=12)
         time.sleep(3*60 + random.randint(1, 7*60))
     
     return 0
