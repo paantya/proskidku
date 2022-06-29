@@ -295,10 +295,12 @@ def main():
     time_end = time.time()
     
     while True:
-        print('\rStart load data', end='')
+        print('\r[{datetime.now()}] Start load data', end='')
         urls, datas, log_upd, time_end = one_step(urls, datas, log_upd, time_end, batch_size=12)
-        print('\rEnd load data. Go to sleep.', end='')
-        time.sleep(3*60 + random.randint(1, 7*60))
+
+        time_to_sleep = 3*60 + random.randint(1, 7*60)
+        print(f'\r[{datetime.now()}] End load data. Go to sleep ({time_to_sleep}).', end='')
+        time.sleep(time_to_sleep)
     
     return 0
 
