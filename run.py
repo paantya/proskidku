@@ -251,7 +251,7 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
 
             now = datetime.now()
             dmsg = datetime.fromtimestamp(data['tg']['date'])
-            log_upd[datetime_key]['time_lines'].append(now - dmsg)
+            log_upd[datetime_key]['time_lines'].append((now - dmsg).total_seconds())
 
             save(datas, file='datas.json')
             save(urls, file='urls.json')
