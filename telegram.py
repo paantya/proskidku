@@ -1,6 +1,8 @@
 import time
 import telebot
 
+from typing import Optional, Union
+
 from datetime import datetime
 
 from config_prod import TOKEN
@@ -22,7 +24,7 @@ def echo_all(message):
     print(message)
 
 
-# bot.infinity_polling()
+
 def send_message(data, time_end, chat_id, time_limit=3.1):
     img = data['img']
     url = data['url']
@@ -49,7 +51,7 @@ def send_message(data, time_end, chat_id, time_limit=3.1):
     time.sleep(time_limit)
 
     try:
-        send_message_ = bot.send_message(chat_id,
+        send_message_ = bot_send_message(chat_id,
                                          text,
                                          reply_markup=markup,
                                          #                                     entities=entities,
@@ -76,6 +78,38 @@ def send_message(data, time_end, chat_id, time_limit=3.1):
     }
 
     return message_json, time_end
+
+
+
+# bot.infinity_polling()
+def bot_send_message(chat_id: Union[int, str],
+                     text: str,
+                     time_sleep: Optional[bool,int] = False,
+                     parse_mode: Optional[str] = None,
+                     reply_markup = None,
+                     entities=None,
+                     disable_web_page_preview: Optional[bool] = None,
+                     disable_notification: Optional[bool] = True):
+    try:
+        if time_sleep:
+            if type(time_sleep) == int:
+                time.sleep(time_sleep)
+            else:
+                time.sleep(5)
+        message = bot.send_message(
+            chat_id=chat_id,
+            text=text,
+            parse_mode=parse_mode,
+            reply_markup=reply_markup,
+            entities=entities,
+            disable_web_page_preview=disable_web_page_preview,
+            disable_notification=disable_notification,
+        )
+    except Exception as e:
+        text = f"Exception get_soup: {e}"
+        print(text)
+        message = None
+    return message
 
 
 # # bot.infinity_polling()
