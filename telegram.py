@@ -157,25 +157,39 @@ def upd_info(msg_json, n):
     markup = telebot.types.InlineKeyboardMarkup()
     markup.add(telebot.types.InlineKeyboardButton(n, url=f'https://t.me/ProSkidkuru'))
 
-    time.sleep(1)
-    remsg = bot.edit_message_text(
-        text=text,
-        chat_id=msg_json['chat']['id'],
-        message_id=msg_json['message_id'],
-        reply_markup=markup,
-    )
+    try:
+        time.sleep(1)
+        remsg = bot.edit_message_text(
+            text=text,
+            chat_id=msg_json['chat']['id'],
+            message_id=msg_json['message_id'],
+            reply_markup=markup,
+        )
+
+    except Exception as e:
+        text = f"Exception delete_message: {e}, message_json:{message_json}"
+        print(text)
+        time.sleep(5)
+        bot_send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
 
 
 def upd_info_log(msg_json, text, d, o, n):
     markup = telebot.types.InlineKeyboardMarkup()
     markup.add(telebot.types.InlineKeyboardButton(f"{d}, {o}, {n}", url=f'https://t.me/ProSkidkuru'))
 
-    remsg = bot.edit_message_text(
-        text=text,
-        chat_id=msg_json['chat']['id'],
-        message_id=msg_json['message_id'],
-        reply_markup=markup,
-    )
+    try:
+        time.sleep(1)
+        remsg = bot.edit_message_text(
+            text=text,
+            chat_id=msg_json['chat']['id'],
+            message_id=msg_json['message_id'],
+            reply_markup=markup,
+        )
+    except Exception as e:
+        text = f"Exception delete_message: {e}, message_json:{message_json}"
+        print(text)
+        time.sleep(5)
+        bot_send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
 
 
 def delete_message(message_json, verbose=True):
