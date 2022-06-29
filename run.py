@@ -1,5 +1,6 @@
 
 import time
+import pytz
 import random
 
 import requests
@@ -162,7 +163,9 @@ def update(urls):
     # zavisony, diskont, srochnye-sroki
     
     delete, no_change, new = check_change(old_urls, urls)
-    text = f"⏳ `[{datetime.now()}]` upd ({len(old_urls)} - > {len(urls)}, diff {len(urls) - len(old_urls)})(del: {len(delete)}, old: {len(no_change)}, new: {len(new)}): {', '.join(total)}."
+
+    datetime_now = datetime.now().astimezone().astimezone(tz=pytz.timezone('Europe/Moscow'))
+    text = f"⏳ `[{datetime_now}]` upd ({len(old_urls)} - > {len(urls)}, diff {len(urls) - len(old_urls)})(del: {len(delete)}, old: {len(no_change)}, new: {len(new)}): {', '.join(total)}."
     print(text)
     time.sleep(4)
     upd_info_log(msg_info_log, text, len(delete), len(no_change), len(new))
@@ -177,7 +180,7 @@ def update(urls):
 
 def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
     urls_new, delete, no_change, new = update(urls)
-    change = True if len(urls) != len(urls_new) else False
+    change = True if len(delete) + len(new) > 0 else False
 
     new_list = list(new)
 
@@ -197,8 +200,20 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
 
                 datas[k] = data_new[k]
                 urls[k] = urls_new[k]
+
+                tm_tmp = time.time()
+                datetime_key = tm_tmp - tm_tmp%900
+                if datetime_key not in log_upd:
+                    log_upd[datetime_key] = {
+                        'add': 0,
+                        'del': 0,
+                        'time_lines': [],
+                    }
+                log_upd[datetime_key]['add'] += 1
+
                 save(datas, file='datas.json')
                 save(urls, file='urls.json')
+                save(log_upd, file='log_upd.json')
             else:
                 print(f"MSG NO SEND: key {k}\nJSON:{data['tg']}")
                 
@@ -217,8 +232,24 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
         if flag != False:
             datas.pop(key, None)
             urls.pop(key, None)
+
+            tm_tmp = time.time()
+            datetime_key = tm_tmp - tm_tmp%900
+            if datetime_key not in log_upd:
+                log_upd[datetime_key] = {
+                    'add': 0,
+                    'del': 0,
+                    'time_lines': [],
+                }
+            log_upd[datetime_key]['del'] += 1
+
+            now = datetime.now()
+            dmsg = datetime.fromtimestamp(data['tg']['date'])
+            log_upd[datetime_key]['time_lines'].append(now - dmsg)
+
             save(datas, file='datas.json')
             save(urls, file='urls.json')
+            save(log_upd, file='log_upd.json')
 
         else:
             now = datetime.now()
