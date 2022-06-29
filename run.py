@@ -297,7 +297,7 @@ def main():
     while True:
         print('\rStart load data', end='')
         urls, datas, log_upd, time_end = one_step(urls, datas, log_upd, time_end, batch_size=12)
-        print('\rEnd load data', end='')
+        print('\rEnd load data. Go to sleep.', end='')
         time.sleep(3*60 + random.randint(1, 7*60))
     
     return 0
