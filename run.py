@@ -141,6 +141,7 @@ def update(urls):
     old_urls = urls
 
     reload_url = True
+    time_sleep = 1.4
     while reload_url:
         reload_url = False
         urls = {}
@@ -151,11 +152,16 @@ def update(urls):
             urls, pages_count = crawl_products(categoric=categoric, urls=urls)
             if urls is None:
                 reload_url = True
-            diff_urls = len(urls) - len_urls
-            length[categoric] = {
-                'pages': pages_count,
-                'pos': diff_urls,
-            }
+                if time_sleep < 90:
+                    time_sleep *= 2
+                time.sleep(min(90,time_sleep))
+                break
+            else:
+                diff_urls = len(urls) - len_urls
+                length[categoric] = {
+                    'pages': pages_count,
+                    'pos': diff_urls,
+                }
 
     total = []
     for k,v in length.items():
