@@ -89,7 +89,7 @@ def bot_send_message(chat_id: Union[int, str],
                      entities=None,
                      disable_web_page_preview: Optional[bool] = None,
                      disable_notification: Optional[bool] = True,
-                     time_sleep: Optional[bool,int] = False
+                     time_sleep: Union[bool,int] = False,
 ):
     try:
         if time_sleep:
