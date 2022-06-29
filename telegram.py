@@ -54,7 +54,7 @@ def send_message(data, time_end, chat_id, time_limit=3.1):
                                          reply_markup=markup,
                                          #                                     entities=entities,
                                          disable_web_page_preview=disable_web_page_preview,
-                                         disable_notification=True
+                                         disable_notification=True,
                                          )
         time_end = time.time()
     except Exception as e:

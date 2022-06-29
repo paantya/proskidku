@@ -14,6 +14,25 @@ from config_prod import CHAT_ID, CHAT_ID_LOG, CHAT_TD_LOG
 
 from telegram import bot, send_message, upd_info, upd_info_log, delete_message
 
+def bot_send_message(chat_id, text,
+    reply_markup = markup, disable_web_page_preview=None,disable_notification=True):
+    text,
+    reply_markup = markup,
+    #                                     entities=entities,
+    disable_web_page_preview = disable_web_page_preview,
+    disable_notification = True
+
+
+
+    try:
+        time.sleep(5)
+        message = bot.send_message(chat_id=chat_id, text=text, disable_notification=disable_notification)
+    except Exception as e:
+        text = f"Exception get_soup: {e}"
+        print(text)
+        message = None
+    return message
+
 def get_soup(url, **kwargs):
     try:
         response = requests.get(url, **kwargs)
