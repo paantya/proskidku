@@ -84,12 +84,13 @@ def send_message(data, time_end, chat_id, time_limit=3.1):
 # bot.infinity_polling()
 def bot_send_message(chat_id: Union[int, str],
                      text: str,
-                     time_sleep: Optional[bool,int] = False,
                      parse_mode: Optional[str] = None,
                      reply_markup = None,
                      entities=None,
                      disable_web_page_preview: Optional[bool] = None,
-                     disable_notification: Optional[bool] = True):
+                     disable_notification: Optional[bool] = True,
+                     time_sleep: Optional[bool,int] = False
+):
     try:
         if time_sleep:
             if type(time_sleep) == int:
