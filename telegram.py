@@ -24,7 +24,6 @@ def echo_all(message):
     print(message)
 
 
-
 def send_message(data, time_end, chat_id, time_limit=3.1):
     img = data['img']
     url = data['url']
@@ -80,17 +79,16 @@ def send_message(data, time_end, chat_id, time_limit=3.1):
     return message_json, time_end
 
 
-
 # bot.infinity_polling()
 def bot_send_message(chat_id: Union[int, str],
                      text: str,
                      parse_mode: Optional[str] = None,
-                     reply_markup = None,
+                     reply_markup=None,
                      entities=None,
                      disable_web_page_preview: Optional[bool] = None,
                      disable_notification: Optional[bool] = True,
-                     time_sleep: Union[bool,int] = False,
-):
+                     time_sleep: Union[bool, int] = False,
+                     ):
     try:
         if time_sleep:
             if type(time_sleep) == int:
@@ -159,7 +157,7 @@ def upd_info(msg_json, n):
 
     try:
         time.sleep(1)
-        remsg = bot.edit_message_text(
+        bot.edit_message_text(
             text=text,
             chat_id=msg_json['chat']['id'],
             message_id=msg_json['message_id'],
@@ -179,7 +177,7 @@ def upd_info_log(msg_json, text, d, o, n):
 
     try:
         time.sleep(1)
-        remsg = bot.edit_message_text(
+        bot.edit_message_text(
             text=text,
             chat_id=msg_json['chat']['id'],
             message_id=msg_json['message_id'],
@@ -192,7 +190,7 @@ def upd_info_log(msg_json, text, d, o, n):
         bot_send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
 
 
-def delete_message(msg_json, verbose=True):
+def delete_message(msg_json):
     try:
         time.sleep(4)
         now = datetime.now()
