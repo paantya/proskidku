@@ -234,7 +234,7 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
 
     for key in tqdm(delete, 'dalate',leave=False):
         data = datas[key]
-        flag = delete_message(data['tg'], verbose=False)
+        flag = delete_message(data['tg'])
         if flag != False:
             datas.pop(key, None)
             urls.pop(key, None)
