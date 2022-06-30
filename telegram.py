@@ -167,7 +167,7 @@ def upd_info(msg_json, n):
         )
 
     except Exception as e:
-        text = f"Exception delete_message: {e}, message_json:{message_json}"
+        text = f"Exception delete_message: {e}, message_json:{msg_json}"
         print(text)
         time.sleep(5)
         bot_send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
@@ -186,32 +186,32 @@ def upd_info_log(msg_json, text, d, o, n):
             reply_markup=markup,
         )
     except Exception as e:
-        text = f"Exception delete_message: {e}, message_json:{message_json}"
+        text = f"Exception delete_message: {e}, message_json:{msg_json}"
         print(text)
         time.sleep(5)
         bot_send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
 
 
-def delete_message(message_json, verbose=True):
+def delete_message(msg_json, verbose=True):
     try:
         time.sleep(4)
         now = datetime.now()
-        dmsg = datetime.fromtimestamp(message_json['date'])
+        dmsg = datetime.fromtimestamp(msg_json['date'])
         if (now - dmsg).days < 2:
             flag_delete_message = bot.delete_message(
-                chat_id=message_json['chat']['id'],
-                message_id=message_json['message_id'],
+                chat_id=msg_json['chat']['id'],
+                message_id=msg_json['message_id'],
             )
             return flag_delete_message
         else:
             remsg = bot.edit_message_text(
                 text='#продано',
-                chat_id=message_json['chat']['id'],
-                message_id=message_json['message_id'],
+                chat_id=msg_json['chat']['id'],
+                message_id=msg_json['message_id'],
             )
             return remsg.json
     except Exception as e:
-        text = f"Exception delete_message: {e}, message_json:{message_json}"
+        text = f"Exception delete_message: {e}, message_json:{msg_json}"
         print(text)
         time.sleep(5)
         bot_send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
