@@ -186,7 +186,7 @@ def update(urls):
 
 def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
     urls_new, delete, no_change, new = update(urls)
-    change = True if len(delete) + len(new) > 0 else False
+    change = True if len(urls) != len(urls_new) > 0 else False
 
     new_list = list(new)
 

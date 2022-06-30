@@ -165,7 +165,7 @@ def upd_info(msg_json, n):
         )
 
     except Exception as e:
-        text = f"Exception delete_message: {e}, message_json:{msg_json}"
+        text = f"Exception edit_message_text: {e}, message_json:{msg_json}"
         print(text)
         time.sleep(5)
         bot_send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
@@ -184,7 +184,7 @@ def upd_info_log(msg_json, text, d, o, n):
             reply_markup=markup,
         )
     except Exception as e:
-        text = f"Exception delete_message: {e}, message_json:{msg_json}"
+        text = f"Exception edit_message_text: {e}, message_json:{msg_json}"
         print(text)
         time.sleep(5)
         bot_send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
