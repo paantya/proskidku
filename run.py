@@ -211,11 +211,10 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
                 tm_tmp = time.time()
                 datetime_key = tm_tmp - tm_tmp%900
                 if datetime_key not in log_upd:
-                    log_upd[datetime_key] = {
-                        'add': 0,
-                        'del': 0,
-                        'time_lines': [],
-                    }
+                    log_upd[datetime_key] = {}
+                if 'add' not in log_upd[datetime_key]:
+                    log_upd[datetime_key]['add'] = 0
+
                 log_upd[datetime_key]['add'] += 1
 
                 save(datas, file='datas.json')
@@ -243,11 +242,12 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
             tm_tmp = time.time()
             datetime_key = tm_tmp - tm_tmp%900
             if datetime_key not in log_upd:
-                log_upd[datetime_key] = {
-                    'add': 0,
-                    'del': 0,
-                    'time_lines': [],
-                }
+                log_upd[datetime_key] = {}
+            if 'del' not in log_upd[datetime_key]:
+                log_upd[datetime_key]['del'] = 0
+            if 'time_lines' not in log_upd[datetime_key]:
+                log_upd[datetime_key]['time_lines'] = []
+
             log_upd[datetime_key]['del'] += 1
 
             now = datetime.now()
