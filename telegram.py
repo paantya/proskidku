@@ -1,4 +1,5 @@
 import time
+import pytz
 import telebot
 
 from typing import Optional, Union
@@ -150,7 +151,8 @@ def bot_send_message(chat_id: Union[int, str],
 # bot.infinity_polling()
 
 def upd_info(msg_json, n):
-    text = '''Скидок доступно в канале и на сайте:'''
+    datetime_now = datetime.now().astimezone().astimezone(tz=pytz.timezone('Europe/Moscow'))
+    text = '''Скидок доступно в канале и на сайте (upd time: datetime_now):'''
 
     markup = telebot.types.InlineKeyboardMarkup()
     markup.add(telebot.types.InlineKeyboardButton(n, url=f'https://t.me/ProSkidkuru'))
