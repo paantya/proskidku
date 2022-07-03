@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from datetime import datetime
 
 from utils import load
 
@@ -34,7 +35,7 @@ def ger_plot_st(file='log_upd.json'):
 
     fig, axes = plt.subplots(3, 1, figsize=(10, 12))
 
-    fig.suptitle('Statistics for adding and removing items')
+    fig.suptitle(f'Statistics for adding and removing items {datetime.now()}.')
     stat = 'percent'  # percent density
     multiple = 'dodge'
     g = sns.histplot(data=dframe,
