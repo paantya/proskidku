@@ -5,3 +5,5 @@ tqdm
 pytz
 numpy
 pandas
+matplotlib
+seaborn
