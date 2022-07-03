@@ -192,6 +192,22 @@ def upd_info_log(msg_json, text, d, o, n):
         bot_send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
 
 
+def send_photo_log(photo_path='Statistics.png'):
+    try:
+        time.sleep(5)
+        photo = open(photo_path, 'rb')
+        bot.send_photo(
+            CHAT_ID_LOG,
+            photo,
+            disable_notification=True,
+        )
+    except Exception as e:
+        text = f"Exception send_photo: {e}, photo_path: `{photo_path}`."
+        print(text)
+        time.sleep(5)
+        bot_send_message(chat_id=CHAT_ID_LOG, text=text, disable_notification=True)
+
+
 def delete_message(msg_json):
     try:
         time.sleep(4)

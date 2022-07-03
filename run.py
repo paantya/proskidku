@@ -13,8 +13,9 @@ from utils import load, save
 
 from config_prod import msg_info, msg_info_log
 from config_prod import CHAT_ID, CHAT_ID_LOG, CHAT_TD_LOG
+from plot import ger_plot_st
 
-from telegram import bot, send_message, upd_info, upd_info_log, delete_message, bot_send_message
+from telegram import bot, send_photo_log, send_message, upd_info, upd_info_log, delete_message, bot_send_message
 
 
 def get_soup(url, **kwargs):
@@ -209,7 +210,7 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
                 urls[k] = urls_new[k]
 
                 tm_tmp = time.time()
-                datetime_key = tm_tmp - tm_tmp%900
+                datetime_key = int(tm_tmp - tm_tmp%900)
                 if datetime_key not in log_upd:
                     log_upd[datetime_key] = {}
                 if 'add' not in log_upd[datetime_key]:
@@ -234,13 +235,13 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
 
     for key in tqdm(delete, 'dalate',leave=False):
         data = datas[key]
-        flag = delete_message(data['tg'])
-        if flag != False:
+        successful_delete = delete_message(data['tg'])
+        if successful_delete:
             datas.pop(key, None)
             urls.pop(key, None)
 
             tm_tmp = time.time()
-            datetime_key = tm_tmp - tm_tmp%900
+            datetime_key = int(tm_tmp - tm_tmp%900)
             if datetime_key not in log_upd:
                 log_upd[datetime_key] = {}
             if 'del' not in log_upd[datetime_key]:
@@ -293,6 +294,7 @@ def main():
     datas = load(file='datas.json')
     urls = load(file='urls.json')
     log_upd = load(file='log_upd.json')
+    photo_log = None
     time_end = time.time()
     
     while True:
@@ -301,6 +303,11 @@ def main():
 
         time_to_sleep = 3*60 + random.randint(1, 7*60)
         print(f'\r[{datetime.now()}] End load data. Go to sleep ({time_to_sleep} [s]).', end='')
+        if photo_log is None or (photo_log.day != datetime.now().day and datetime.now().hour > 10):
+            ger_plot_st(file='log_upd.json')
+            send_photo_log()
+            photo_log = datetime.now()
+
         time.sleep(time_to_sleep)
     
     return 0
