@@ -29,7 +29,7 @@ def ger_plot_st(file='log_upd.json'):
     dframe['weekday'] = dframe['datetimes'].dt.day_name()
     dframe['weekdayn'] = dframe['datetimes'].dt.weekday
     dframe.loc[dframe['product'] == 'add', ('weekdayn')] = dframe[dframe['product'] == 'add']['weekdayn'] + 7
-    dframe['weekofyear'] = dframe['datetimes'].dt.weekofyear
+    dframe['weekofyear'] = dframe['datetimes'].dt.isocalendar().week
     dframe['hours'] = dframe['datetimes'].dt.hour
 
     fig, axes = plt.subplots(3, 1, figsize=(10, 12))
