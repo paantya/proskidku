@@ -17,6 +17,8 @@ from plot import ger_plot_st
 
 from telegram import bot, send_photo_log, send_message, upd_info, upd_info_log, delete_message, bot_send_message
 
+NEW_UPD = 10
+
 
 def get_soup(url, **kwargs):
     try:
@@ -176,7 +178,7 @@ def update(urls):
     print(text)
     time.sleep(4)
     upd_info_log(msg_info_log, text, len(delete), len(no_change), len(new))
-    if len(delete)+len(new)>0:
+    if len(new) > NEW_UPD:
         try:
             time.sleep(4)
             text = f"{f'➖: {len(delete)}'if len(delete) >0 else ''}{', 'if len(delete)>0 and len(new)>0 else ''}{f'➕: {len(new)}.' if len(new)>0 else '.'}"
@@ -301,7 +303,7 @@ def main():
         print('\r[{datetime.now()}] Start load data', end='')
         urls, datas, log_upd, time_end = one_step(urls, datas, log_upd, time_end, batch_size=12)
 
-        if photo_log is None or (photo_log.day != datetime.now().day:
+        if photo_log is None or (photo_log.day != datetime.now().day):
             print(f'\r[{datetime.now()}] Start plot.', end='')
             ger_plot_st(file='log_upd.json')
             print(f'\r[{datetime.now()}] End plot, start send.', end='')
