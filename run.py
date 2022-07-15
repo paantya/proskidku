@@ -303,7 +303,7 @@ def main():
         print('\r[{datetime.now()}] Start load data', end='')
         urls, datas, log_upd, time_end = one_step(urls, datas, log_upd, time_end, batch_size=12)
 
-        if photo_log is None or (photo_log.day != datetime.now().day):
+        if photo_log is None or (photo_log.day != datetime.now().day and datetime.now().hour > 21):
             print(f'\r[{datetime.now()}] Start plot.', end='')
             ger_plot_st(file='log_upd.json')
             print(f'\r[{datetime.now()}] End plot, start send.', end='')
