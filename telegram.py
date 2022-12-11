@@ -31,6 +31,8 @@ def send_message(data, time_end, chat_id, time_limit=3.1):
     name = f"[{data['name']}]({url})"
     price = f"Цена: *{data['price_new'].replace(' ₽', '₽')}* (Скидка {data['pp']})"
     price_link = f"{data['price_new'].replace(' ₽', '₽')} (Скидка {data['pp']})"
+
+    # убираем специальные символы из описаний и категорий товара
     сharacteristics = '\n'.join([k + ': #' + v.replace(' ', '\_').replace('-', '\_').replace('`', '').replace("'",
                                                                                                               '').replace(
         "!", '').replace(",", '').replace(".", '').replace("*", '') for k, v in data['сharacteristics'].items()])
