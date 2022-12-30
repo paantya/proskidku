@@ -237,7 +237,11 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
                     print(f"MSG NO SEND: key {k}\nJSON:{data['tg']}")
 
     if pp_zero > 0:
-        print(f"pp_zero: {pp_zero}")
+        text = f"pp_zero: {pp_zero}"
+        try:
+            bot_send_message(chat_id=CHAT_TD_LOG, text=text, disable_notification=True)
+        except:
+            pass
     if change:
         upd_info(msg_info, len(urls_new))
 
