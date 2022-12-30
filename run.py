@@ -204,6 +204,12 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
         url_new = {k:url_new[k] for k in data_new.keys()}
 
         for k,data in tqdm(data_new.items(), 'send new data' ,leave=False):
+
+            # 'price_old': price_old,
+            # 'price_new': price_new,
+            # 'price_economy': price_economy,
+            print(f"data['price_economy']: {data['price_economy']}")
+            print(f"data: {data}")
             send_message_json, time_end = send_message(data, time_end, chat_id=CHAT_ID)
             if send_message_json is not None:
                 data_new[k]['tg'] = send_message_json
