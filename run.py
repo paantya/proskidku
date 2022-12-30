@@ -15,6 +15,8 @@ from config_prod import msg_info, msg_info_log
 from config_prod import CHAT_ID, CHAT_ID_LOG, CHAT_TD_LOG
 from plot import ger_plot_st
 
+# CHAT_ID = CHAT_ID_LOG
+
 from telegram import bot, send_photo_log, send_message, upd_info, upd_info_log, delete_message, bot_send_message
 
 NEW_UPD = 10
@@ -191,6 +193,7 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
     urls_new, delete, no_change, new = update(urls)
     # change = True if len(urls) != len(urls_new) else False
     change = True
+    pp_zero = 0
 
     new_list = list(new)
 
@@ -208,9 +211,9 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
             # 'price_old': price_old,
             # 'price_new': price_new,
             # 'price_economy': price_economy,
-            print(f"data['price_economy']: {data['price_economy']}")
-            print(f"data: {data}")
             if data['pp'] == '0%':
+                print(f"data['pp'] == '0%' data: {data}")
+                pp_zero += 1
                 continue
 
             send_message_json, time_end = send_message(data, time_end, chat_id=CHAT_ID)
@@ -234,6 +237,10 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
                 save(log_upd, file='log_upd.json')
             else:
                 print(f"MSG NO SEND: key {k}\nJSON:{data['tg']}")
+
+    if pp_zero > 0:
+        text_tmp = f"pp_zero: {pp_zero}"
+        print(text_tmp)
 
     if change:
         upd_info(msg_info, len(urls_new))

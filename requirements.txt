@@ -1,4 +1,4 @@
-pyTelegramBotAPI==4.6.0
+pyTelegramBotAPI==4.8.0
 beautifulsoup4==4.11.1
 requests
 tqdm
