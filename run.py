@@ -191,7 +191,6 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
     urls_new, delete, no_change, new = update(urls)
     # change = True if len(urls) != len(urls_new) else False
     change = True
-    pp_zero = 0
 
     new_list = list(new)
 
@@ -211,37 +210,29 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
             # 'price_economy': price_economy,
             print(f"data['price_economy']: {data['price_economy']}")
             print(f"data: {data}")
-            if data['pp'] == '0%':
-                pp_zero += 1
+
+            send_message_json, time_end = send_message(data, time_end, chat_id=CHAT_ID)
+            if send_message_json is not None:
+                data_new[k]['tg'] = send_message_json
+
+                datas[k] = data_new[k]
+                urls[k] = urls_new[k]
+
+                tm_tmp = time.time()
+                datetime_key = int(tm_tmp - tm_tmp%900)
+                if datetime_key not in log_upd:
+                    log_upd[datetime_key] = {}
+                if 'add' not in log_upd[datetime_key]:
+                    log_upd[datetime_key]['add'] = 0
+
+                log_upd[datetime_key]['add'] += 1
+
+                save(datas, file='datas.json')
+                save(urls, file='urls.json')
+                save(log_upd, file='log_upd.json')
             else:
-                send_message_json, time_end = send_message(data, time_end, chat_id=CHAT_ID)
-                if send_message_json is not None:
-                    data_new[k]['tg'] = send_message_json
+                print(f"MSG NO SEND: key {k}\nJSON:{data['tg']}")
 
-                    datas[k] = data_new[k]
-                    urls[k] = urls_new[k]
-
-                    tm_tmp = time.time()
-                    datetime_key = int(tm_tmp - tm_tmp%900)
-                    if datetime_key not in log_upd:
-                        log_upd[datetime_key] = {}
-                    if 'add' not in log_upd[datetime_key]:
-                        log_upd[datetime_key]['add'] = 0
-
-                    log_upd[datetime_key]['add'] += 1
-
-                    save(datas, file='datas.json')
-                    save(urls, file='urls.json')
-                    save(log_upd, file='log_upd.json')
-                else:
-                    print(f"MSG NO SEND: key {k}\nJSON:{data['tg']}")
-
-    if pp_zero > 0:
-        text = f"pp_zero: {pp_zero}"
-        try:
-            bot_send_message(chat_id=CHAT_TD_LOG, text=text, disable_notification=True)
-        except:
-            pass
     if change:
         upd_info(msg_info, len(urls_new))
 
