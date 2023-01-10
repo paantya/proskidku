@@ -236,6 +236,11 @@ def one_step(urls, log_upd, time_end = 0, batch_size=16):
 
                 log_upd[datetime_key]['add'] += 1
 
+
+                data_dir = f"./{'/'.join(k.split('/')[-3:-2])}"
+                is_data_dir = Path(data_dir)
+                if not is_data_dir.is_dir():
+                    is_data_dir.mkdir(parents=True, exist_ok=True)
                 save(data_done, file=f'{data_file}.json')
                 save(urls, file='urls.json')
                 save(log_upd, file='log_upd.json')
