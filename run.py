@@ -2,6 +2,9 @@
 import time
 import pytz
 import random
+from pathlib import Path
+
+
 
 import requests
 
@@ -189,7 +192,7 @@ def update(urls):
             pass
     return urls, delete, no_change, new
 
-def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
+def one_step(urls, log_upd, time_end = 0, batch_size=16):
     urls_new, delete, no_change, new = update(urls)
     # change = True if len(urls) != len(urls_new) else False
     change = True
@@ -220,7 +223,8 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
             if send_message_json is not None:
                 data_new[k]['tg'] = send_message_json
 
-                datas[k] = data_new[k]
+                data_file = f"./{'/'.join(k.split('/')[-2:])}"
+                data_done = data_new[k]
                 urls[k] = urls_new[k]
 
                 tm_tmp = time.time()
@@ -232,7 +236,7 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
 
                 log_upd[datetime_key]['add'] += 1
 
-                save(datas, file='datas.json')
+                save(data_done, file=f'{data_file}.json')
                 save(urls, file='urls.json')
                 save(log_upd, file='log_upd.json')
             else:
@@ -252,10 +256,16 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
     delete_list_true = []
 
     for key in tqdm(delete, 'dalate',leave=False):
-        data = datas[key]
-        successful_delete = delete_message(data['tg'])
+
+        data_file = f"./{'/'.join(key.split('/')[-2:])}"
+        is_file_path = Path(f'{data_file}.json')
+        if is_file_path.is_file():
+            data_key = load(file=f'{data_file}.json')
+            data = data_key
+            successful_delete = delete_message(data['tg'])
+        else:
+            successful_delete = False
         if successful_delete:
-            datas.pop(key, None)
             urls.pop(key, None)
 
             tm_tmp = time.time()
@@ -273,7 +283,11 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
             dmsg = datetime.fromtimestamp(data['tg']['date'])
             log_upd[datetime_key]['time_lines'].append((now - dmsg).total_seconds())
 
-            save(datas, file='datas.json')
+            # save(datas, file='datas.json')
+            data_file = f"./{'/'.join(key.split('/')[-2:])}"
+            is_file_path = Path(f'{data_file}.json')
+            if is_file_path.is_file():
+                is_file_path.unlink()
             save(urls, file='urls.json')
             save(log_upd, file='log_upd.json')
 
@@ -293,7 +307,7 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
             bot_send_message(chat_id=CHAT_TD_LOG, text=text, disable_notification=True)
         except:
             pass
-    return urls, datas, log_upd, time_end
+    return urls, log_upd, time_end
 
 
 # def main_first():
@@ -309,7 +323,7 @@ def one_step(urls, datas, log_upd, time_end = 0, batch_size=16):
 
 
 def main():
-    datas = load(file='datas.json')
+    # datas = load(file='datas.json')
     urls = load(file='urls.json')
     log_upd = load(file='log_upd.json')
     photo_log = None
@@ -317,7 +331,7 @@ def main():
     
     while True:
         print('\r[{datetime.now()}] Start load data', end='')
-        urls, datas, log_upd, time_end = one_step(urls, datas, log_upd, time_end, batch_size=12)
+        urls, log_upd, time_end = one_step(urls, log_upd, time_end, batch_size=12)
 
         if photo_log is None or (photo_log.day != datetime.now().day and datetime.now().hour > 20):
             print(f'\r[{datetime.now()}] Start plot.', end='')
