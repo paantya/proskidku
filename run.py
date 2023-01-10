@@ -223,7 +223,7 @@ def one_step(urls, log_upd, time_end = 0, batch_size=16):
             if send_message_json is not None:
                 data_new[k]['tg'] = send_message_json
 
-                data_file = f"./{'/'.join(k.split('/')[-2:])}"
+                data_file = f"./{'/'.join(k.split('/')[-3:-1])}"
                 data_done = data_new[k]
                 urls[k] = urls_new[k]
 
@@ -284,7 +284,7 @@ def one_step(urls, log_upd, time_end = 0, batch_size=16):
             log_upd[datetime_key]['time_lines'].append((now - dmsg).total_seconds())
 
             # save(datas, file='datas.json')
-            data_file = f"./{'/'.join(key.split('/')[-2:])}"
+            data_file = f"./{'/'.join(key.split('/')[-3:-1])}"
             is_file_path = Path(f'{data_file}.json')
             if is_file_path.is_file():
                 is_file_path.unlink()
