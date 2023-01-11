@@ -298,12 +298,13 @@ def one_step(urls, log_upd, time_end = 0, batch_size=16):
 
         else:
             now = datetime.now()
-            dt_object = datetime.fromtimestamp(data['tg']['date'])
-            #if (now - dt_object).days >= 1:
-            
-            delete_list_false.append(now - dt_object)
-            #print(str(now - dt_object))
-            #print(f"MSG NO DELETE: key {key} in datas ({key in datas.keys()})\nJSON:{data['tg']}")
+            if is_file_path.is_file():
+                dt_object = datetime.fromtimestamp(data['tg']['date'])
+                #if (now - dt_object).days >= 1:
+
+                delete_list_false.append(now - dt_object)
+                #print(str(now - dt_object))
+                #print(f"MSG NO DELETE: key {key} in datas ({key in datas.keys()})\nJSON:{data['tg']}")
     if len(delete_list_false):
         text = f"❌ `delete_list_false` len({len(delete_list_false)}), min: {min(delete_list_false) if len(delete_list_false) > 0 else '-'}, max: {max(delete_list_false) if len(delete_list_false) > 0 else '-'}"
         print(text)
