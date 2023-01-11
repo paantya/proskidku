@@ -330,8 +330,13 @@ def one_step(urls, log_upd, time_end = 0, batch_size=16):
 
 def main():
     # datas = load(file='datas.json')
-    urls = load(file='urls.json')
-    log_upd = load(file='log_upd.json')
+
+    urls = {}
+    if Path('urls.json').is_file():
+        urls = load(file='urls.json')
+    log_upd = {}
+    if Path('log_upd.json').is_file():
+        log_upd = load(file='log_upd.json')
     photo_log = None
     time_end = time.time()
     
