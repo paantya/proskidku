@@ -270,7 +270,7 @@ def one_step(urls, log_upd, time_end = 0, batch_size=16):
             successful_delete = delete_message(data['tg'])
         else:
             successful_delete = False
-        if successful_delete and is_file_path.is_file()::
+        if successful_delete:
             urls.pop(key, None)
 
             tm_tmp = time.time()
