@@ -262,7 +262,7 @@ def one_step(urls, log_upd, time_end = 0, batch_size=16):
 
     for key in tqdm(delete, 'dalate',leave=False):
 
-        data_file = f"./{'/'.join(key.split('/')[-2:])}"
+        data_file = f"./{'/'.join(key.split('/')[-3:-1])}"
         is_file_path = Path(f'{data_file}.json')
         if is_file_path.is_file():
             data_key = load(file=f'{data_file}.json')
