@@ -284,10 +284,9 @@ def one_step(urls, log_upd, time_end = 0, batch_size=16):
 
             log_upd[datetime_key]['del'] += 1
 
-            if is_file_path.is_file():
-                now = datetime.now()
-                dmsg = datetime.fromtimestamp(data['tg']['date'])
-                log_upd[datetime_key]['time_lines'].append((now - dmsg).total_seconds())
+            now = datetime.now()
+            dmsg = datetime.fromtimestamp(data['tg']['date'])
+            log_upd[datetime_key]['time_lines'].append((now - dmsg).total_seconds())
 
             # save(datas, file='datas.json')
             data_file = f"./{'/'.join(key.split('/')[-3:-1])}"
