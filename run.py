@@ -270,7 +270,7 @@ def one_step(urls, log_upd, time_end = 0, batch_size=16):
             successful_delete = delete_message(data['tg'])
         else:
             successful_delete = False
-        if successful_delete:
+        if successful_delete and is_file_path.is_file()::
             urls.pop(key, None)
 
             tm_tmp = time.time()
@@ -284,9 +284,10 @@ def one_step(urls, log_upd, time_end = 0, batch_size=16):
 
             log_upd[datetime_key]['del'] += 1
 
-            now = datetime.now()
-            dmsg = datetime.fromtimestamp(data['tg']['date'])
-            log_upd[datetime_key]['time_lines'].append((now - dmsg).total_seconds())
+            if is_file_path.is_file():
+                now = datetime.now()
+                dmsg = datetime.fromtimestamp(data['tg']['date'])
+                log_upd[datetime_key]['time_lines'].append((now - dmsg).total_seconds())
 
             # save(datas, file='datas.json')
             data_file = f"./{'/'.join(key.split('/')[-3:-1])}"
