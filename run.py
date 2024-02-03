@@ -335,8 +335,12 @@ def main():
     if Path('urls.json').is_file():
         urls = load(file='urls.json')
     log_upd = {}
-    if Path('log_upd.json').is_file():
-        log_upd = load(file='log_upd.json')
+
+    try:
+        if Path('log_upd.json').is_file():
+            log_upd = load(file='log_upd.json')
+    except:
+        log_upd = {}
     photo_log = None
     time_end = time.time()
     
@@ -344,14 +348,16 @@ def main():
         print('\r[{datetime.now()}] Start load data', end='')
         urls, log_upd, time_end = one_step(urls, log_upd, time_end, batch_size=12)
 
-        if photo_log is None or (photo_log.day != datetime.now().day and datetime.now().hour > 20):
-            print(f'\r[{datetime.now()}] Start plot.', end='')
-            ger_plot_st(file='log_upd.json')
-            print(f'\r[{datetime.now()}] End plot, start send.', end='')
-            send_photo_log()
-            photo_log = datetime.now()
-            print(f'\r[{datetime.now()}] End send.', end='')
-
+        try:
+            if photo_log is None or (photo_log.day != datetime.now().day and datetime.now().hour > 20):
+                print(f'\r[{datetime.now()}] Start plot.', end='')
+                ger_plot_st(file='log_upd.json')
+                print(f'\r[{datetime.now()}] End plot, start send.', end='')
+                send_photo_log()
+                photo_log = datetime.now()
+                print(f'\r[{datetime.now()}] End send.', end='')
+        except:
+            pass
         time_to_sleep = 3*60 + random.randint(1, 7*60)
         print(f'\r[{datetime.now()}] End load data. Go to sleep ({time_to_sleep} [s]).', end='')
         time.sleep(time_to_sleep)
