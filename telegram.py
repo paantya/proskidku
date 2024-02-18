@@ -154,7 +154,7 @@ def bot_send_message(chat_id: Union[int, str],
 
 def upd_info(msg_json, n):
     datetime_now = datetime.now().astimezone().astimezone(tz=pytz.timezone('Europe/Moscow'))
-    text = f'''`{datetime_now.strftime('%H:%M:%S %Y-%m-%d')}` по Москве, скидок доступно в канале и на сайте:'''
+    text = f'''На `{datetime_now.strftime('%H:%M %Y-%m-%d')}` по Москве, скидок доступно в канале и на сайте:'''
 
     markup = telebot.types.InlineKeyboardMarkup()
     markup.add(telebot.types.InlineKeyboardButton(n, url=f'https://t.me/ProSkidkuru'))
