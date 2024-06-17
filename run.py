@@ -346,7 +346,7 @@ def main():
     time_end = time.time()
     
     while True:
-        print('\r[{datetime.now()}] Start load data', end='')
+        print(f'\r[{datetime.now()}] Start load data', end='')
         urls, log_upd, time_end = one_step(urls, log_upd, time_end, batch_size=12)
 
         try:
